@@ -12,7 +12,9 @@ He was a flame that burnt brightly but too shortly, and who always be remembered
 
 int main() {
 	SDL_Init(SDL_INIT_VIDEO);
-	SDL_Window* win = SDL_CreateWindow("vn-engine", 20, 20, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	SDL_Window* win = SDL_CreateWindow("vn-engine", 20, 20, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	new_width = DEFAULT_WIDTH;
+	new_height = DEFAULT_HEIGHT;
 
 	bool done = false;
 	SDL_Event event;
@@ -20,7 +22,11 @@ int main() {
 		if (event.type == SDL_WINDOWEVENT) {
 			switch (event.window.event) {
 			case SDL_WINDOWEVENT_RESIZED:
-				printf("x: %d y:%d", event.window.data1, event.window.data2);
+				old_width = new_width;
+				old_height = new_height;
+				new_width = event.window.data1;
+				new_height = event.window.data2;
+				printf("x: %d y:%d", new_width, new_height);
 				break;
 			}
 		}

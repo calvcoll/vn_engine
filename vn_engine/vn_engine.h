@@ -5,6 +5,14 @@
 #include <stdio.h>
 #undef main
 
+int DEFAULT_WIDTH = 1280;
+int DEFAULT_HEIGHT = 720;
+
+int old_width;
+int old_height;
+int new_width;
+int new_height;
+
 int main();
 
 #endif
