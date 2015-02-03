@@ -1,7 +1,3 @@
-#include <SDL.h>
-#include <stdio.h>
-#undef main
-
 /*
 I dedicate this engine to the great Monty Oum, who sadly passed away 01/02/2015
 He was a flame that burnt brightly but too shortly, and who always be remembered.
@@ -11,6 +7,8 @@ He was a flame that burnt brightly but too shortly, and who always be remembered
 	It may not be immediate, and often your greater dreams is something you will not achieve within your own lifetime.
 	The effort you put forth to anything transcends yourself, for there is no futility even in death.	"
 */
+
+#include "vn_engine.h"
 
 int main() {
 	SDL_Init(SDL_INIT_VIDEO);

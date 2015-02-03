@@ -121,6 +121,9 @@
   <ItemGroup>
     <ClCompile Include="vn_engine.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="vn_engine.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
