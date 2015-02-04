@@ -11,14 +11,27 @@ He was a flame that burnt brightly but too shortly, and who always be remembered
 #include "vn_engine.h"
 
 int main() {
+	DEBUG = true;
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_Window* win = SDL_CreateWindow("vn-engine", 20, 20, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-	new_width = DEFAULT_WIDTH;
-	new_height = DEFAULT_HEIGHT;
 
+	gameLoop();
+	SDL_DestroyWindow(win);
+	SDL_Quit();
+
+	return 0;
+}
+
+void gameLoop() {
 	bool done = false;
+	int old_width;
+	int old_height;
+	int new_width = DEFAULT_WIDTH;
+	int new_height = DEFAULT_HEIGHT;
+
 	SDL_Event event;
-	while (!done && SDL_WaitEvent(&event)) {
+	SDL_WaitEvent(&event);
+	while (!done) {
 		if (event.type == SDL_WINDOWEVENT) {
 			switch (event.window.event) {
 			case SDL_WINDOWEVENT_RESIZED:
@@ -26,8 +39,10 @@ int main() {
 				old_height = new_height;
 				new_width = event.window.data1;
 				new_height = event.window.data2;
-				printf("x: %d y:%d", new_width, new_height);
-				break;
+				if (DEBUG) {
+					printf("x: %d y:%d", new_width, new_height);
+				}
+				eventQueue.push_back(ResizeEvent(old_width, old_height, new_width, new_height));
 			}
 		}
 		switch (event.type) {
@@ -36,7 +51,4 @@ int main() {
 			break;
 		}
 	}
-	SDL_Quit();
-
-	return 0;
 }

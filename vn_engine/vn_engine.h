@@ -3,16 +3,21 @@
 
 #include <SDL.h>
 #include <stdio.h>
+#include <vector>
+
+#include "Event.h"
+#include "ResizeEvent.h"
+
 #undef main
 
 int DEFAULT_WIDTH = 1280;
 int DEFAULT_HEIGHT = 720;
 
-int old_width;
-int old_height;
-int new_width;
-int new_height;
+bool DEBUG = false;
+
+std::vector <Event> eventQueue;
 
 int main();
+void gameLoop();
 
 #endif
