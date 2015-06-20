@@ -1,7 +1,7 @@
 #ifndef VN_ENGINE_H
 #define VN_ENGINE_H
 
-#include <SDL.h>
+#include "SDL.h"
 #include <stdio.h>
 #include <vector>
 
@@ -12,12 +12,13 @@
 
 int DEFAULT_WIDTH = 1280;
 int DEFAULT_HEIGHT = 720;
+int FRAME_RATE = 60;
 
 bool DEBUG = false;
 
 std::vector <Event> eventQueue;
 
 int main();
-void gameLoop();
+void gameLoop(SDL_Window* window);
 
 #endif

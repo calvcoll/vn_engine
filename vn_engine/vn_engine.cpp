@@ -10,28 +10,38 @@ He was a flame that burnt brightly but too shortly, and who always be remembered
 
 #include "vn_engine.h"
 
+/*
+This engine has been designed to overwrite some of the events that fire from SDL, this is to make the use a lot easier.
+*/
+
 int main() {
 	DEBUG = true;
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_Window* win = SDL_CreateWindow("vn-engine", 20, 20, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
-	gameLoop();
+	gameLoop(win);
 	SDL_DestroyWindow(win);
 	SDL_Quit();
 
 	return 0;
 }
 
-void gameLoop() {
+void gameLoop(SDL_Window* window) {
 	bool done = false;
 	int old_width;
 	int old_height;
 	int new_width = DEFAULT_WIDTH;
 	int new_height = DEFAULT_HEIGHT;
+	double scaleX = 1;
+	double scaleY = 1;
+
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 
 	SDL_Event event;
 	SDL_WaitEvent(&event);
 	while (!done) {
+		SDL_RenderClear(renderer);
 		if (event.type == SDL_WINDOWEVENT) {
 			switch (event.window.event) {
 			case SDL_WINDOWEVENT_RESIZED:
@@ -39,16 +49,22 @@ void gameLoop() {
 				old_height = new_height;
 				new_width = event.window.data1;
 				new_height = event.window.data2;
+				scaleX = (double) new_width / old_width;
+				scaleY = (double) new_height / old_height;
 				if (DEBUG) {
-					printf("x: %d y:%d", new_width, new_height);
+					printf("x: %d y:%d scaleX:%.2f scaleY:%.2f \n", new_width, new_height, scaleX, scaleY);
 				}
-				eventQueue.push_back(ResizeEvent(old_width, old_height, new_width, new_height));
+				eventQueue.push_back(ResizeEvent(old_width, old_height, new_width, new_height, scaleX, scaleY));
 			}
 		}
 		switch (event.type) {
 		case SDL_QUIT:
 			done = true;
+			printf("%s", "Quitting on SDL Quit");
 			break;
 		}
+
+		SDL_RenderPresent(renderer);
+		SDL_WaitEvent(&event);
 	}
 }
