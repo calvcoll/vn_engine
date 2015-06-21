@@ -24,6 +24,9 @@
     <ClCompile Include="ResizeEvent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LuaInterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Event.h">
@@ -35,5 +38,13 @@
     <ClInclude Include="ResizeEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LuaInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="script.lua">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

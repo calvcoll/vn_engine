@@ -6,15 +6,15 @@ class ResizeEvent :
 	public Event
 {
 public:
-	ResizeEvent(int old_x, int old_y, int new_x, int new_y, int _scaleX, int _scaleY);
+	ResizeEvent(int old_x, int old_y, int new_x, int new_y, double _scaleX, double _scaleY);
 	~ResizeEvent();
 
 	int old_width;
 	int old_height;
 	int new_width;
 	int new_height;
-	int scaleX;
-	int scaleY
+	double scaleX;
+	double scaleY;
 };
 
 #endif

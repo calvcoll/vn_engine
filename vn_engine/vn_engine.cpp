@@ -18,29 +18,31 @@ int main() {
 	DEBUG = true;
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_Window* win = SDL_CreateWindow("vn-engine", 20, 20, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	SDL_Renderer* renderer = SDL_CreateRenderer(win, -1, 0);
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 
-	gameLoop(win);
+	lua_State* state = initLuaScript("script.lua");
+	eventLoop(renderer);
+	gameLoop(renderer);
+
 	SDL_DestroyWindow(win);
 	SDL_Quit();
+	killLuaState(state);
 
 	return 0;
 }
 
-void gameLoop(SDL_Window* window) {
-	bool done = false;
+void eventLoop(SDL_Renderer* renderer) {
 	int old_width;
 	int old_height;
 	int new_width = DEFAULT_WIDTH;
 	int new_height = DEFAULT_HEIGHT;
 	double scaleX = 1;
 	double scaleY = 1;
-
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-
 	SDL_Event event;
 	SDL_WaitEvent(&event);
-	while (!done) {
+
+	while (!game_finished) {
 		SDL_RenderClear(renderer);
 		if (event.type == SDL_WINDOWEVENT) {
 			switch (event.window.event) {
@@ -49,8 +51,8 @@ void gameLoop(SDL_Window* window) {
 				old_height = new_height;
 				new_width = event.window.data1;
 				new_height = event.window.data2;
-				scaleX = (double) new_width / old_width;
-				scaleY = (double) new_height / old_height;
+				scaleX = (double)new_width / old_width;
+				scaleY = (double)new_height / old_height;
 				if (DEBUG) {
 					printf("x: %d y:%d scaleX:%.2f scaleY:%.2f \n", new_width, new_height, scaleX, scaleY);
 				}
@@ -59,12 +61,18 @@ void gameLoop(SDL_Window* window) {
 		}
 		switch (event.type) {
 		case SDL_QUIT:
-			done = true;
+			game_finished = true;
 			printf("%s", "Quitting on SDL Quit");
 			break;
 		}
 
 		SDL_RenderPresent(renderer);
 		SDL_WaitEvent(&event);
+	}
+}
+
+void gameLoop(SDL_Renderer* renderer) {
+	while (!game_finished) {
+		SDL_Delay(1000/FRAME_RATE);
 	}
 }
