@@ -22,8 +22,13 @@ int main() {
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 
 	lua_State* state = initLuaScript("script.lua");
-	eventLoop(renderer);
-	gameLoop(renderer);
+	std::thread eventThread(eventLoop,renderer);
+	std::thread updateThread(gameLoop,renderer);
+	std::thread renderThread(renderLoop, renderer);
+
+	eventThread.join();
+	updateThread.join();
+	renderThread.join();
 
 	SDL_DestroyWindow(win);
 	SDL_Quit();
@@ -74,5 +79,11 @@ void eventLoop(SDL_Renderer* renderer) {
 void gameLoop(SDL_Renderer* renderer) {
 	while (!game_finished) {
 		SDL_Delay(1000/FRAME_RATE);
+	}
+}
+
+void renderLoop(SDL_Renderer* renderer) {
+	while (!game_finished) {
+
 	}
 }
