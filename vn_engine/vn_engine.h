@@ -24,5 +24,6 @@ std::vector <Event> eventQueue;
 int main();
 void gameLoop(SDL_Renderer* renderer);
 void eventLoop(SDL_Renderer* renderer);
+void renderLoop(SDL_Renderer* renderer);
 
 #endif
