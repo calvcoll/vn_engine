@@ -4,7 +4,6 @@
 #include <SDL.h>
 #include <stdio.h>
 #include <vector>
-#include <thread>
 
 #include "Event.h"
 #include "ResizeEvent.h"
