@@ -9,6 +9,7 @@ MenuState::~MenuState() {
 }
 
 void MenuState::render() {
+	
 }
 
 void MenuState::update() {
