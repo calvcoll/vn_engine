@@ -17,23 +17,24 @@ This engine has been designed to overwrite some of the events that fire from SDL
 int main() {
 	DEBUG = true;
 	SDL_Init(SDL_INIT_VIDEO);
-	SDL_Window* win = SDL_CreateWindow("vn-engine", 20, 20, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-	SDL_Renderer* renderer = SDL_CreateRenderer(win, -1, 0);
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+	window = SDL_CreateWindow("vn-engine", 20, 20, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
 	lua_State* state = initLuaScript("script.lua");
-	eventLoop(renderer);
-	gameLoop(renderer);
-	renderLoop(renderer);
+	renderMutex = SDL_CreateMutex();
+	SDL_Thread* renderThread = SDL_CreateThread(renderLoop, "renderloop", (void*) NULL);
+	eventLoop();
 
-	SDL_DestroyWindow(win);
+	SDL_WaitThread(renderThread, NULL);
+
+	SDL_DestroyWindow(window);
+	SDL_DestroyMutex(renderMutex);
 	SDL_Quit();
 	killLuaState(state);
 
 	return 0;
 }
 
-void eventLoop(SDL_Renderer* renderer) {
+void eventLoop() {
 	int old_width;
 	int old_height;
 	int new_width = DEFAULT_WIDTH;
@@ -44,7 +45,7 @@ void eventLoop(SDL_Renderer* renderer) {
 	SDL_WaitEvent(&event);
 
 	while (!game_finished) {
-		SDL_RenderClear(renderer);
+		SDL_LockMutex(renderMutex);
 		if (event.type == SDL_WINDOWEVENT) {
 			switch (event.window.event) {
 			case SDL_WINDOWEVENT_RESIZED:
@@ -57,7 +58,10 @@ void eventLoop(SDL_Renderer* renderer) {
 				if (DEBUG) {
 					printf("x: %d y:%d scaleX:%.2f scaleY:%.2f \n", new_width, new_height, scaleX, scaleY);
 				}
-				eventQueue.push_back(ResizeEvent(old_width, old_height, new_width, new_height, scaleX, scaleY));
+				//eventQueue.push_back(ResizeEvent(old_width, old_height, new_width, new_height, scaleX, scaleY));
+				break;
+			default:
+				break;
 			}
 		}
 		switch (event.type) {
@@ -65,21 +69,38 @@ void eventLoop(SDL_Renderer* renderer) {
 			game_finished = true;
 			printf("%s", "Quitting on SDL Quit");
 			break;
+		default:
+			break;
 		}
-
-		SDL_RenderPresent(renderer);
-		SDL_WaitEvent(&event);
+		if (!game_finished) {
+			SDL_WaitEvent(&event);
+			SDL_UnlockMutex(renderMutex);
+		}
+		SDL_Delay(1000 / FRAME_RATE);
 	}
+	SDL_UnlockMutex(renderMutex);
 }
 
-void gameLoop(SDL_Renderer* renderer) {
+int renderLoop(void* data) {
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+	unsigned int time_current = SDL_GetTicks();
+	unsigned int last_time = SDL_GetTicks();
 	while (!game_finished) {
-		SDL_Delay(1000/FRAME_RATE);
+		//fps
+		time_current = SDL_GetTicks();
+		unsigned int delta = time_current - last_time;
+		double fps = 1000.f / delta;
+		last_time = SDL_GetTicks();
+		printf("\nfps:%.2f", fps);
+		//end fps
+		int error = SDL_TryLockMutex(renderMutex);
+		if (!error) {
+			SDL_RenderClear(renderer);
+			SDL_RenderPresent(renderer);
+			SDL_UnlockMutex(renderMutex);
+		}		
+		SDL_Delay(1000 / FRAME_RATE);
 	}
-}
-
-void renderLoop(SDL_Renderer* renderer) {
-	while (!game_finished) {
-
-	}
+	return 0;
 }

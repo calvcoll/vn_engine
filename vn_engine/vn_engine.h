@@ -17,12 +17,16 @@ int FRAME_RATE = 60;
 
 bool DEBUG = false;
 bool game_finished = false;
+bool refresh_screen = false;
+
+SDL_Window* window;
+SDL_mutex* renderMutex;
 
 std::vector <Event> eventQueue;
 
 int main();
-void gameLoop(SDL_Renderer* renderer);
-void eventLoop(SDL_Renderer* renderer);
-void renderLoop(SDL_Renderer* renderer);
+void gameLoop();
+void eventLoop();
+int renderLoop(void* data);
 
 #endif
