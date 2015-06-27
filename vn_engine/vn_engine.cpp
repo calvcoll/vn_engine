@@ -110,7 +110,7 @@ void printfps(double fps) {
 	times++;
 	times %= 60;
 	if (times == 0)	{
-		printf("\nfps:%.2f", sum / 60); sum = 0;
+		printf("fps:%.2f\n", sum / 60); sum = 0;
 	}
 	else {
 		sum += fps;
@@ -120,12 +120,12 @@ void printfps(double fps) {
 int renderLoop(void* data) {
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-	unsigned int time_current = SDL_GetTicks();
+	unsigned int time_current;
 	unsigned int last_time = SDL_GetTicks();
 	while (!game_finished) {
 		//fps
 		time_current = SDL_GetTicks();
-		unsigned int delta = time_current - last_time;
+		int delta = time_current - last_time;
 		double fps = 1000.f / delta;
 		last_time = SDL_GetTicks();
 		printfps(fps);
@@ -135,8 +135,8 @@ int renderLoop(void* data) {
 			SDL_RenderClear(renderer);
 			SDL_RenderPresent(renderer);
 			SDL_UnlockMutex(renderMutex);
-		}		
-		SDL_Delay(1000 / FRAME_RATE);
+		}
+		SDL_Delay((int) fmin(1000 / FRAME_RATE,delta));
 	}
 	SDL_DestroyRenderer(renderer);
 	return 0;
