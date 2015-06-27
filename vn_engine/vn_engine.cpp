@@ -14,27 +14,49 @@ He was a flame that burnt brightly but too shortly, and who always be remembered
 This engine has been designed to overwrite some of the events that fire from SDL, this is to make the use a lot easier.
 */
 
+template <typename SDL_Thread>
+void waitThreads(SDL_Thread thread) {
+	SDL_WaitThread(thread, NULL);
+}
+
+template <typename SDL_Thread, typename... Args>
+void waitThreads(SDL_Thread thread, Args... args) {
+	SDL_WaitThread(thread, NULL);
+	waitThreads(args...);
+}
+
 int main() {
 	DEBUG = true;
 	SDL_Init(SDL_INIT_VIDEO);
 	window = SDL_CreateWindow("vn-engine", 20, 20, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
-	lua_State* state = initLuaScript("script.lua");
 	renderMutex = SDL_CreateMutex();
+	SDL_Thread* luaThread = SDL_CreateThread(lua, "luaThread", (void*) NULL);
 	SDL_Thread* renderThread = SDL_CreateThread(renderLoop, "renderloop", (void*) NULL);
 	eventLoop();
 
-	SDL_WaitThread(renderThread, NULL);
+	waitThreads(renderThread, luaThread);
+	return shutdown();
+}
 
+int shutdown() {
 	SDL_DestroyWindow(window);
 	SDL_DestroyMutex(renderMutex);
 	SDL_Quit();
-	killLuaState(state);
 
 	return 0;
 }
 
+int lua(void* data) {
+	printf("Lua init\n");
+	lua_State* state = initLuaScript("script.lua");
+	killLuaState(state);
+	printf("\nLua dead.\n");
+	return 0;
+}
+
 void eventLoop() {
+	SDL_Init(SDL_INIT_EVENTS);
 	int old_width;
 	int old_height;
 	int new_width = DEFAULT_WIDTH;
@@ -81,6 +103,20 @@ void eventLoop() {
 	SDL_UnlockMutex(renderMutex);
 }
 
+int times = 0;
+double sum = 0;
+
+void printfps(double fps) {
+	times++;
+	times %= 60;
+	if (times == 0)	{
+		printf("\nfps:%.2f", sum / 60); sum = 0;
+	}
+	else {
+		sum += fps;
+	}
+}
+
 int renderLoop(void* data) {
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
@@ -92,7 +128,7 @@ int renderLoop(void* data) {
 		unsigned int delta = time_current - last_time;
 		double fps = 1000.f / delta;
 		last_time = SDL_GetTicks();
-		printf("\nfps:%.2f", fps);
+		printfps(fps);
 		//end fps
 		int error = SDL_TryLockMutex(renderMutex);
 		if (!error) {
@@ -102,5 +138,6 @@ int renderLoop(void* data) {
 		}		
 		SDL_Delay(1000 / FRAME_RATE);
 	}
+	SDL_DestroyRenderer(renderer);
 	return 0;
 }

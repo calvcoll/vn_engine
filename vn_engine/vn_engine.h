@@ -24,8 +24,12 @@ SDL_mutex* renderMutex;
 
 std::vector <Event> eventQueue;
 
+template <typename SDL_Thread> void waitThreads(SDL_Thread thread);
+template <typename SDL_Thread, typename... Args> void waitThreads(SDL_Thread thread, Args... args);
+
 int main();
-void gameLoop();
+int shutdown();
+int lua(void* data);
 void eventLoop();
 int renderLoop(void* data);
 
